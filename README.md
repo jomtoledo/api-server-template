@@ -1,11 +1,16 @@
 # api-server-template
-A boilerplate Node.js Express API server with TypeScript, Prisma ORM, and PostgreSQL using MVC architecture. Includes Prisma migrations, seed data, and a clean project structure for rapid API development.
+This project is an **Object-Oriented MVC boilerplate** for building scalable REST APIs with **Node.js, Express, and TypeScript**.  
+It uses **Prisma ORM** with **PostgreSQL** for data persistence, and includes **JWT authentication**,  
+a **class-based architecture** (Controllers, Services, Repositories, Middlewares), and **database seeding**.
+
+
 
 ## Tech Stack
 - **Node.js** + **Express.js** – Web framework
 - **TypeScript** – Type safety
 - **PostgreSQL** – Database
 - **Prisma ORM** – Database access & migrations
+- **JWT (JSON Web Tokens)** – Authentication & authorization
 - **MVC Architecture** – Models, Services, Controllers, Routes, Middlewares
 
 ## Getting Started
