@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserRole {
+  id                    String    @id
+  name                  String    @unique
+  desc                  String?   
+  dtCreated             DateTime  @default(now()) @map("datetime_created")
+  dtLastModified        DateTime? @updatedAt @map("datetime_lastmodified")
+  status                Int       @default(1) // 1 = active, 0 = deleted
+
+  users                 User[]
+
+  @@map("user_roles")
+}
+
+model User {
+  id              String              @id @default(uuid()) @db.Uuid @map("id")
+  roleId          String              @map("user_roles_id_fk")
+  role            UserRole            @relation(fields: [roleId], references: [id])
+  email           String              @unique @map("email")
+  mobileNo        String              @unique @map("mobile_number")
+  dtLastLogin     DateTime?           @map("datetime_lastlogin")
+  dtCreated       DateTime            @default(now()) @map("datetime_created")
+  dtLastModified  DateTime?           @updatedAt @map("datetime_lastmodified")
+  status          Int                 @default(1) @map("status") // 1=active, 0=inactive, etc.
+
+  credentials     UserCredential[]
+  profile         UserProfile?
+  logs            Log[]
+  
+  @@map("users")
+}
+
+model UserCredential {
+  id                    String      @id @default(uuid()) @db.Uuid @map("id")
+  
+  // Relations
+  userId                String      @db.Uuid @map("users_id_fk")
+  user                  User        @relation(fields: [userId], references: [id])
+
+  type                  String      //e.g. "password", "fingerprint", "webauthn", "oauth"
+  value                 String      //hashed password, fingerprint template, or WebAuthn key
+  dtCreated             DateTime    @default(now()) @map("datetime_created")
+  dtLastModified        DateTime?   @updatedAt @map("datetime_lastmodified")
+  status                Int         @default(1) // 1 = active, 0 = deleted
+
+  @@unique([userId, type]) // each account can only have 1 of each type
+  @@map("user_credentials")
+}
+
+model UserProfile {
+  id                    String      @id @default(uuid()) @db.Uuid @map("id")
+  
+  // Relations
+  userId                String      @unique @db.Uuid @map("users_id_fk")
+  user                  User        @relation(fields: [userId], references: [id])
+  profilePhoto          String?     @map("profile_photo")
+  firstName             String      @map("first_name")
+  middleName            String?     @map("middle_name")
+  lastName              String      @map("last_name")
+  gender                Int         @default(1) // 1 = Male, 2 = Female
+  dtCreated             DateTime    @default(now()) @map("datetime_created")
+  dtLastModified        DateTime?   @updatedAt @map("datetime_lastmodified")
+  status                Int         @default(1) // 1 = active, 0 = deleted
+
+  @@map("user_profiles")
+}
+
+model Resource {
+  id                    String      @id @default(uuid()) @db.Uuid @map("id")
+  
+  parentId              String?     @db.Uuid @map("parent")
+  parent                Resource?   @relation("ResourceToParent", fields: [parentId], references: [id])
+  children              Resource[]  @relation("ResourceToParent")
+  
+  name                  String      
+  type                  String      @default("api") //e.g. "nav", "page", "api"
+  apiMethod             String?     @default("GET") @map("api_method") //e.g. "GET", "POST", "PUT", "DELETE"
+  module                String      @default("default")
+  controller            String      @default("index")
+  action                String      @default("index")
+  icon                  String?
+  dtCreated             DateTime    @default(now()) @map("datetime_created")
+  dtLastModified        DateTime?   @updatedAt @map("datetime_lastmodified")
+  status                Int         @default(1) // 1 = active, 0 = deleted
+  
+  accesses              ResourceAccess[]
+  
+  @@map("resources")
+}
+
+model ResourceAccess {
+  id                  String      @id @default(uuid()) @db.Uuid @map("id")
+  
+  // Relations
+  resourceId          String      @db.Uuid @map("resources_id_fk")
+  resource            Resource    @relation(fields: [resourceId], references: [id])
+  
+  level               Int         // 1 = role, 2 = group, 3 = user
+  value               String      // roleId (string) OR groupId/userId (UUID stored as string)
+  dtCreated           DateTime    @default(now()) @map("datetime_created")
+  dtLastModified      DateTime?   @updatedAt @map("datetime_lastmodified")
+  status              Int         @default(1) @map("status") // 1=active, 0=deleted
+  
+  @@index([level, value])
+  @@unique([resourceId, level, value])
+  
+  @@map("resource_access")
+}
