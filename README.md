@@ -17,8 +17,8 @@ a **class-based architecture** (Controllers, Services, Repositories, Middlewares
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/express-prisma-postgres-api.git
-cd express-prisma-postgres-api
+git clone https://github.com/jomtoledo/api-server-template.git
+cd api-server-template
 ```
 
 ### 2. Install dependencies
@@ -28,7 +28,7 @@ npm install
 
 ### 3. Setup environment variables
 ```bash
-DATABASE_URL="postgresql://username:password@localhost:5432/mydb?schema=public"
+DATABASE_URL="postgresql://<username>:<password>@localhost:<port>/mydb?schema=public"
 PORT=4000
 ```
 

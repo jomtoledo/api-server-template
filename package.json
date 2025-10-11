@@ -16,7 +16,7 @@
     "url": "git+https://github.com/jomtoledo/api-server-template.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "jomtoledo",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
