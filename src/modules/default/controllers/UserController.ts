@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import MainController, { AuthenticatedRequest } from './MainController';
+import MainController from './MainController';
 import { UserAccountHelper } from "../../../helpers/UserAccountHelper";
 export default class UserController extends MainController {
     
@@ -15,7 +15,7 @@ export default class UserController extends MainController {
      * - Generates and encrypts a random password
      * - Saves the user and their credentials in the database
      */
-    public create = async (req: AuthenticatedRequest, res: Response) => {
+    public create = async (req: Request, res: Response) => {
         const {
             role_id: roleId, email, mobile_number: mobileNo, credential_type: credType = 'password', 
             first_name: firstName, last_name: lastName
@@ -55,7 +55,7 @@ export default class UserController extends MainController {
                 log_categories_id_fk: "USER_CREATE", desc: `A User created a User account`,
                 table: `users`, row_id: account.id, 
                 old_data: undefined, new_data: account,
-                users_id_fk: req.user.id
+                users_id_fk: (req as any).user.id
             });
             return res.json(account);
         } catch (e: any) {
@@ -71,7 +71,7 @@ export default class UserController extends MainController {
      * - Returns user details and token in the response
      * - Supports password-based authentication; biometric authentication is a TODO
      */
-    public login = async (req: AuthenticatedRequest, res: Response) => {
+    public login = async (req: Request, res: Response) => {
         const { username, password, credential_type: credType = "password" } = req.body;
         try {
             const user = await this._prisma.user.findFirst({
@@ -106,7 +106,7 @@ export default class UserController extends MainController {
 
             const token = await UserAccountHelper.generateToken(user);
             
-            await this._logger.insert({ log_categories_id_fk: "AUTH_LOGIN", desc: `A User logged on to the system`, users_id_fk: req.user.id });
+            await this._logger.insert({ log_categories_id_fk: "AUTH_LOGIN", desc: `A User logged on to the system`, users_id_fk: (req as any).user.id });
 
             return res.json({
                 message: `Login successful!`,
@@ -125,7 +125,7 @@ export default class UserController extends MainController {
      * - Includes related profile and credentials
      * - Returns 404 if user not found
      */
-    public getById = async (req: AuthenticatedRequest, res: Response) => {
+    public getById = async (req: Request, res: Response) => {
         const { id } = req.params;
         try {
             if (!id) return res.status(400).json({ message: `Bad Request: An ID is required to identify the user to retrieve.` });
@@ -144,7 +144,7 @@ export default class UserController extends MainController {
             await this._logger.insert({
                 log_categories_id_fk: "USER_GETBYID", desc: `A User retrieved a User account`, 
                 table: `users`, row_id: id, 
-                users_id_fk: req.user.id
+                users_id_fk: (req as any).user.id
             });
             return res.json(user);
         } catch (e: any) {
@@ -162,7 +162,7 @@ export default class UserController extends MainController {
      * - Returns paginated list of users along with pagination metadata
      * - Access controlled via middleware
      */
-    public get = async (req: AuthenticatedRequest, res: Response) => {
+    public get = async (req: Request, res: Response) => {
         try {
             const { 
                 user_roles_id_fk: roleId, email, mobile_number: mobileNo, status, 
@@ -194,7 +194,7 @@ export default class UserController extends MainController {
             await this._logger.insert({
                 log_categories_id_fk: "USER_GET", desc: `A User retrieved a list of User accounts`, 
                 table: `users`, new_data: query, 
-                users_id_fk: req.user.id
+                users_id_fk: (req as any).user.id
             });
             return res.json({
                 data: users,
@@ -216,7 +216,7 @@ export default class UserController extends MainController {
      * - Expects userId as a route param
      * - Allows updating roleId, email, mobile_number, status
      */
-    public update = async (req: AuthenticatedRequest, res: Response) => {
+    public update = async (req: Request, res: Response) => {
         const { id } = req.params;
         if (!id) return res.status(400).json({ message: `Bad Request: An ID is required to identify the data to update.` })
         if (!req?.body) return res.status(400).json({ message: `Request body cannot be empty for update operation.` });
@@ -243,7 +243,7 @@ export default class UserController extends MainController {
                 log_categories_id_fk: "USER_UPDATE", desc: `A User updated a User account`, 
                 table: `users`, row_id: id, 
                 old_data: user, new_data: updatedUser, 
-                users_id_fk: req.user.id
+                users_id_fk: (req as any).user.id
             });
             return res.json(updatedUser);
         } catch (e: any) {
@@ -258,7 +258,7 @@ export default class UserController extends MainController {
      * - Returns 404 if user not found, 400 if already deleted
      * - Returns success message upon successful deletion
      */
-    public delete = async (req: AuthenticatedRequest, res: Response) => {
+    public delete = async (req: Request, res: Response) => {
         const { id } = req.params;
         try {
             if (!id) return res.status(400).json({ message: `Bad Request: An ID is required to identify the data to delete.` });
@@ -271,7 +271,7 @@ export default class UserController extends MainController {
                 log_categories_id_fk: "USER_DELETE", desc: `A User deleted a User account`, 
                 table: `users`, row_id: id, 
                 old_data: user, new_data: newData, 
-                users_id_fk: req.user.id
+                users_id_fk: (req as any).user.id
             });
             return res.json({ message: "User deleted successfully" });
         } catch (e: any) {
@@ -286,7 +286,7 @@ export default class UserController extends MainController {
      * - Returns 404 if user not found, 400 if not deleted
      * - Returns success message upon successful restoration
      */  
-    public restore = async (req: AuthenticatedRequest, res: Response) => {
+    public restore = async (req: Request, res: Response) => {
         const { id } = req.params;
         try {
             if (!id) return res.status(400).json({ message: `Bad Request: An ID is required to identify the data to restore.` });
@@ -299,7 +299,7 @@ export default class UserController extends MainController {
                 log_categories_id_fk: "USER_RESTORE", desc: `A User restored a User account`, 
                 table: `users`, row_id: id, 
                 old_data: user, new_data: newData, 
-                users_id_fk: req.user.id
+                users_id_fk: (req as any).user.id
             });
             return res.json({ message: `User restored successfully` });
         } catch (e: any) {

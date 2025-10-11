@@ -1,12 +1,5 @@
-import { Request } from "express";
-import { PrismaClient, User, UserProfile } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import LoggerService from '../../../LoggerService';
-
-export interface AuthenticatedRequest extends Request {
-    user: User & {
-        profile: UserProfile
-    };
-}
 
 /**
  * MainController is an abstract class that provides common functionalities for all controllers.

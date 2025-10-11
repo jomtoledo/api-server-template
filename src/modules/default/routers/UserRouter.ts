@@ -18,9 +18,9 @@ export default class UserRouter {
     }
     
     private _initializeRoutes() {
-        this.router.post('/create', this._userController.create);
+        this.router.post('/create', this._uac.verifyAccess, this._userController.create);
         this.router.post('/login', this._userController.login);
-        this.router.get('/:id', this._userController.getById);
+        this.router.get('/:id', this._uac.verifyAccess, this._userController.getById);
         this.router.put('/:id', this._uac.verifyAccess, this._userController.update);
         this.router.delete('/:id', this._uac.verifyAccess, this._userController.delete);
         this.router.patch('/:id', this._uac.verifyAccess, this._userController.restore);
