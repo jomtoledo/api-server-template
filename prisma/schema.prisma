@@ -114,3 +114,34 @@ model ResourceAccess {
   
   @@map("resource_access")
 }
+
+model LogCategory {
+  id                 String     @id
+  name               String     @unique @map("name")
+  desc               String?    @map("desc")
+  dtCreated          DateTime   @default(now()) @map("datetime_created")
+  dtLastModified     DateTime?  @updatedAt @map("datetime_lastmodified")
+  status             Int        @default(1) @map("status") // 1=active, 0=deleted
+  
+  // optional: relation to logs
+  logs               Log[]
+  
+  @@map("log_categories")
+}
+
+model Log {
+  id              String       @id @default(uuid()) @db.Uuid @map("id")
+  categoryId      String       @map("log_categories_id_fk")
+  category        LogCategory  @relation(fields: [categoryId], references: [id])
+  desc            String       @map("desc")
+  table           String?      @map("table")
+  rowId           String?      @map("row_id")
+  oldData         Json?        @map("old_data")
+  newData         Json?        @map("new_data")
+  userId          String       @db.Uuid @map("users_id_fk")
+  user            User         @relation(fields: [userId], references: [id])
+  dtCreated       DateTime     @default(now()) @map("datetime_created")
+  status          Int          @default(1) @map("status")
+
+  @@map("logs")
+}

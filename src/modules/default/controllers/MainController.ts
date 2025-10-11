@@ -1,4 +1,12 @@
-import { PrismaClient } from '@prisma/client';
+import { Request } from "express";
+import { PrismaClient, User, UserProfile } from '@prisma/client';
+import LoggerService from '../../../LoggerService';
+
+export interface AuthenticatedRequest extends Request {
+    user: User & {
+        profile: UserProfile
+    };
+}
 
 /**
  * MainController is an abstract class that provides common functionalities for all controllers.
@@ -6,12 +14,14 @@ import { PrismaClient } from '@prisma/client';
 export default abstract class MainController {
 
     protected _prisma: PrismaClient;
+    protected _logger: LoggerService;
     
     /**
      * @param prisma An instance of PrismaClient
      */
     constructor(prisma: PrismaClient) {
         this._prisma = prisma;
+        this._logger = new LoggerService(this._prisma);
     }
     
     /**
