@@ -26,7 +26,6 @@ export default class UserController extends MainController {
         const generatedPassword = UserAccountHelper.generateRandomPassword();
         const hashedPassword = UserAccountHelper.encryptPassword(generatedPassword);
         try {
-            // 3️⃣ Save account in DB
             const account = await this._prisma.user.create({
                 data: {
                     roleId: roleId, 
@@ -106,7 +105,7 @@ export default class UserController extends MainController {
 
             const token = await UserAccountHelper.generateToken(user);
             
-            await this._logger.insert({ log_categories_id_fk: "AUTH_LOGIN", desc: `A User logged on to the system`, users_id_fk: (req as any).user.id });
+            await this._logger.insert({ log_categories_id_fk: "AUTH_LOGIN", desc: `A User logged on to the system`, users_id_fk: user.id });
 
             return res.json({
                 message: `Login successful!`,
